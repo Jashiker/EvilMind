@@ -1,0 +1,27 @@
+[project]
+name = "truth-hunter"
+version = "1.0.0"
+description = "真相猎人 — 恶意假设驱动的分级核查Agent"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.0",
+    "python-dotenv>=1.0.1",
+    "chromadb>=0.4.24",
+    "beautifulsoup4>=4.14.3",
+    "lxml>=6.1.1",
+    "easyocr>=1.7.2",
+    "python-multipart>=0.0.29",
+    "paddleocr>=3.6.0",
+    "rapidocr-onnxruntime>=1.4.4",
+]
+
+[project.scripts]
+truth-hunter = "main:main"
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true

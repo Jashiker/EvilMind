@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邪恶思潮 — 恶意假设驱动的信息核查Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+
+<!-- 顶部标题栏 -->
+<header class="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🛡️</span>
+            <div>
+                <h1 class="text-xl font-bold text-white">邪恶思潮</h1>
+                <p class="text-xs text-gray-400">零信任核查 · 多Agent协作 · 360搜索 · 飞桨OCR</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-xs">
+            <button id="btn-view-check" onclick="switchView('check')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-medium transition-colors">🔍 核查</button>
+            <button id="btn-view-graph" onclick="switchView('graph')" class="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 hover:text-white font-medium transition-colors">🕸️ 知识图谱</button>
+            <span class="text-gray-500">🧠 DeepSeek-V3</span>
+            <span class="text-green-500">🔗 360搜索</span>
+            <span id="kb-stats" class="text-gray-500">📚 加载中...</span>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-6 py-8 space-y-8">
+
+    <!-- ═══ 核查视图 ═══ -->
+    <div id="view-check">
+
+    <!-- 输入区 -->
+    <section id="input-section" class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+        <label class="block text-sm font-medium text-gray-300 mb-2">
+            📋 粘贴信息 或 上传截图（支持聊天截图、文章截图、转发图片的 OCR 文字提取）
+        </label>
+        <textarea
+            id="input-text"
+            rows="4"
+            class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            placeholder="在这里粘贴文字信息，或 Ctrl+V 粘贴截图..."
+        ></textarea>
+
+        <!-- 图片预览区 -->
+        <div id="image-preview" class="hidden mt-3 relative inline-block">
+            <img id="image-preview-img" class="max-h-40 rounded-lg border border-gray-600" src="" alt="预览">
+            <button id="btn-clear-image" class="absolute -top-2 -right-2 w-6 h-6 bg-red-600 hover:bg-red-500 rounded-full text-white text-xs flex items-center justify-center transition-colors">✕</button>
+            <div id="image-preview-label" class="text-xs text-gray-400 mt-1">📷 图片已就绪，点击"图片审查"开始</div>
+        </div>
+
+        <div class="mt-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <label id="btn-upload" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white text-sm rounded-lg cursor-pointer transition-colors inline-flex items-center gap-2">
+                    📷 上传截图
+                    <input type="file" id="input-image" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                </label>
+                <span class="text-xs text-gray-500">或 Ctrl+V 粘贴图片</span>
+            </div>
+            <div class="flex gap-2">
+                <button id="btn-analyze-image"
+                    class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed hidden"
+                >
+                    🔍 图片审查
+                </button>
+                <button
+                    id="btn-analyze"
+                    class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    🔍 开始核查
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 预设案例（隐藏） -->
+    <section class="hidden">
+        <div id="demo-cases"></div>
+    </section>
+
+    <!-- 核查过程 — 3个Agent面板 -->
+    <section id="progress-section" class="hidden space-y-4">
+        <h2 class="text-lg font-semibold text-white">🔍 核查过程 — 多Agent协作管道</h2>
+
+        <!-- 谣言指纹官: 指纹提取 → 恶意假设 -->
+        <div id="agent1-panel" class="agent-panel bg-gray-900 rounded-xl p-5 border border-gray-700 opacity-50">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center text-lg">🧬</div>
+                <div>
+                    <span class="font-medium text-purple-300">谣言指纹官</span>
+                    <span class="text-xs text-gray-500 ml-2">Fingerprint Analyst · 14维特征 · 零信任假设</span>
+                </div>
+                <span id="agent1-status" class="text-xs text-gray-500 ml-auto">等待输入</span>
+            </div>
+            <div id="agent1-progress" class="h-1.5 bg-gray-800 rounded-full overflow-hidden mb-3">
+                <div class="h-full bg-purple-500 rounded-full transition-all duration-1000" style="width:0%"></div>
+            </div>
+            <div id="agent1-content" class="hidden space-y-2 text-sm"></div>
+        </div>
+
+        <!-- 三路侦察兵: 360搜索 + Firecrawl搜索 + Firecrawl抓取 -->
+        <div id="agent2-panel" class="agent-panel bg-gray-900 rounded-xl p-5 border border-gray-700 opacity-50">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center text-lg">🔍</div>
+                <div>
+                    <span class="font-medium text-blue-300">三路侦察兵</span>
+                    <span class="text-xs text-gray-500 ml-2">Multi-Source Recon · 360搜索 · Firecrawl搜索 · Firecrawl抓取</span>
+                </div>
+                <span id="agent2-status" class="text-xs text-gray-500 ml-auto">等待指纹官完成</span>
+            </div>
+            <div id="agent2-progress" class="h-1.5 bg-gray-800 rounded-full overflow-hidden mb-3">
+                <div class="h-full bg-blue-500 rounded-full transition-all duration-1000" style="width:0%"></div>
+            </div>
+            <div id="agent2-content" class="hidden text-sm"></div>
+        </div>
+
+        <!-- 真相仲裁官: 辩论合成 → 报告发布 → 认知处方 -->
+        <div id="agent3-panel" class="agent-panel bg-gray-900 rounded-xl p-5 border border-gray-700 opacity-50">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-yellow-900/50 flex items-center justify-center text-lg">⚖️</div>
+                <div>
+                    <span class="font-medium text-yellow-300">真相仲裁官</span>
+                    <span class="text-xs text-gray-500 ml-2">Truth Arbiter · 证据辩论 · 共识裁定 · 报告发布</span>
+                </div>
+                <span id="agent3-status" class="text-xs text-gray-500 ml-auto">等待侦察兵完成</span>
+            </div>
+            <div id="agent3-progress" class="h-1.5 bg-gray-800 rounded-full overflow-hidden mb-3">
+                <div class="h-full bg-yellow-500 rounded-full transition-all duration-1000" style="width:0%"></div>
+            </div>
+            <div id="agent3-content" class="hidden text-sm text-gray-300"></div>
+        </div>
+
+        <!-- 品质审核官: 自我评估 · 质量打分 -->
+        <div id="agent4-panel" class="agent-panel bg-gray-900 rounded-xl p-5 border border-gray-700 opacity-50">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-green-900/50 flex items-center justify-center text-lg">🛡️</div>
+                <div>
+                    <span class="font-medium text-green-300">品质审核官</span>
+                    <span class="text-xs text-gray-500 ml-2">Quality Auditor · 自我评估 · 四维质量打分</span>
+                </div>
+                <span id="agent4-status" class="text-xs text-gray-500 ml-auto">等待仲裁官完成</span>
+            </div>
+            <div id="agent4-progress" class="h-1.5 bg-gray-800 rounded-full overflow-hidden mb-3">
+                <div class="h-full bg-green-500 rounded-full transition-all duration-1000" style="width:0%"></div>
+            </div>
+            <div id="agent4-content" class="hidden text-sm text-gray-300"></div>
+        </div>
+    </section>
+
+    <!-- 核查报告 -->
+    <section id="report-section" class="hidden space-y-6">
+
+        <!-- 结论卡片 -->
+        <div id="verdict-card" class="rounded-2xl p-6 border-2">
+            <div class="flex items-start gap-4">
+                <div class="text-3xl" id="verdict-icon"></div>
+                <div class="flex-1">
+                    <div id="verdict-label" class="text-xl font-bold mb-2"></div>
+                    <div id="verdict-meta" class="text-sm text-gray-300 space-y-1"></div>
+                    <div id="malice-hypothesis" class="mt-3 text-sm text-purple-300 bg-purple-900/20 rounded-lg p-3 hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 证据链 -->
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+            <h3 class="font-medium text-white mb-3">🔗 证据链</h3>
+            <div id="evidence-chain"></div>
+        </div>
+
+        <!-- 认知处方 -->
+        <div id="prescription-section" class="hidden bg-gray-900 rounded-xl p-5 border border-yellow-800/50">
+            <h3 class="font-medium text-yellow-300 mb-3">🛡️ 认知处方 — 防骗小课堂</h3>
+            <div id="prescription-content" class="space-y-4"></div>
+        </div>
+
+        <!-- 自我评估 -->
+        <div id="evaluation-section" class="hidden bg-gray-900 rounded-xl p-5 border border-yellow-800/50">
+            <h3 class="font-medium text-yellow-300 mb-3">🛡️ 质量审查 — Agent 自我评估</h3>
+            <div id="evaluation-content" class="space-y-3"></div>
+        </div>
+
+        <!-- 辟谣卡片 -->
+        <div id="debunk-section" class="hidden bg-gray-900 rounded-xl p-5 border border-green-800/50">
+            <h3 class="font-medium text-green-300 mb-3">📤 辟谣卡片 — 一键分享</h3>
+            <div id="debunk-card" class="bg-gray-800 rounded-xl p-5 border border-green-700/30">
+                <div id="debunk-content" class="space-y-3"></div>
+                <div class="mt-4 flex gap-3">
+                    <button id="btn-copy" class="px-4 py-2 bg-green-700 hover:bg-green-600 text-white text-sm rounded-lg transition-colors">
+                        📋 一键复制
+                    </button>
+                    <span id="copy-status" class="text-xs text-green-400 self-center hidden">✅ 已复制到剪贴板</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户反馈 -->
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+            <h3 class="font-medium text-white mb-3">💬 这个判断准确吗？</h3>
+            <div class="flex gap-3">
+                <button id="btn-feedback-yes" class="px-5 py-2 bg-gray-800 hover:bg-green-900/50 border border-gray-700 hover:border-green-700 text-white text-sm rounded-lg transition-colors">
+                    ✅ 准确
+                </button>
+                <button id="btn-feedback-no" class="px-5 py-2 bg-gray-800 hover:bg-red-900/50 border border-gray-700 hover:border-red-700 text-white text-sm rounded-lg transition-colors">
+                    ❌ 不准确
+                </button>
+                <span id="feedback-status" class="text-xs text-gray-400 self-center hidden"></span>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+    </div>
+    <!-- ═══ 核查视图结束 ═══ -->
+
+    <!-- 知识图谱视图 -->
+    <section id="graph-section" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-white">🕸️ 知识图谱 — 核查案例全景</h2>
+            <div class="flex gap-4 text-xs">
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full inline-block" style="background:#f87171"></span> 假数据</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full inline-block" style="background:#fbbf24"></span> 情绪劫持</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full inline-block" style="background:#a78bfa"></span> 叙事移植</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full inline-block" style="background:#60a5fa"></span> 权威伪装</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full inline-block" style="background:#9ca3af"></span> 信任腐蚀</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full inline-block" style="background:#34d399"></span> 信息投喂</span>
+            </div>
+        </div>
+        <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden" style="height: 600px;">
+            <div id="knowledge-graph" style="width:100%; height:100%"></div>
+        </div>
+        <div id="graph-legend" class="text-xs text-gray-500 text-center">
+            💎 菱形 = 攻击维度 | 🔵 圆点 = 操纵手法 | 📦 方块 = 已核查案例 | 连线粗细 = 邪恶评分
+        </div>
+    </section>
+
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+data/knowledge_db.json
+output/
+*.egg-info/
+dist/
+.DS_Store
+tools/firecrawl/

@@ -1,0 +1,34 @@
+{
+  "cases": [
+    {"text": "中国结婚率不足1%，离婚排长队，年轻人已经躺平了", "verdict": "verdict_false", "category": "data_fabrication", "evidence_summary": "国家统计局：结婚率约5.4‰，'不足1%'严重失实", "evil_score": 0.75},
+    {"text": "中国失业率突破30%，史上最高，大量企业倒闭潮来了", "verdict": "verdict_false", "category": "data_fabrication", "evidence_summary": "城镇调查失业率约5.2%，'30%'夸大6倍", "evil_score": 0.8},
+    {"text": "中国GDP已经被印度超越，跌出世界前五", "verdict": "verdict_false", "category": "data_fabrication", "evidence_summary": "IMF数据：中国GDP 18.74万亿 vs 印度3.91万亿，中国仍居世界第二", "evil_score": 0.8},
+    {"text": "中国楼市彻底崩盘，房价暴跌70%，房企全部破产", "verdict": "verdict_false", "category": "data_fabrication", "evidence_summary": "楼市调整中但未崩盘，'暴跌70%'无数据支撑", "evil_score": 0.85},
+    {"text": "央行紧急通知：所有银行存款利率降为零，鼓励消费", "verdict": "verdict_false", "category": "authority_fake", "evidence_summary": "央行官网无此公告，伪造官方通知", "evil_score": 0.8},
+    {"text": "教育部发布通知：2025年起取消中考", "verdict": "verdict_false", "category": "authority_fake", "evidence_summary": "教育部官网未发布此类通知，文件格式不规范", "evil_score": 0.7},
+    {"text": "钟南山院士推荐某品牌保健品可预防癌症", "verdict": "verdict_false", "category": "authority_fake", "evidence_summary": "钟南山从未推荐过任何保健品", "evil_score": 0.65},
+    {"text": "所有官方数据都是假的，统计局全是编的，你信就输了", "verdict": "verdict_manipulative", "category": "trust_corrosion", "evidence_summary": "全称否定违反基本逻辑，IMF等国际机构数据趋势一致", "evil_score": 0.85},
+    {"text": "这个世界没有真相，每个人都在骗你", "verdict": "verdict_manipulative", "category": "trust_corrosion", "evidence_summary": "典型的信任腐蚀+自我权威化话术", "evil_score": 0.9},
+    {"text": "某市犯罪案件同比上升15%，治安恶化", "verdict": "verdict_manipulative", "category": "selective_feeding", "evidence_summary": "隐藏了人口增长和破案率提升等关键背景", "evil_score": 0.55},
+    {"text": "研究发现每天喝咖啡的人寿命更长（忽略限定条件）", "verdict": "verdict_manipulative", "category": "selective_feeding", "evidence_summary": "研究存在但结论被过度简化，相关性≠因果性", "evil_score": 0.3},
+    {"text": "长期喝纯净水会导致骨质疏松，带走体内矿物质", "verdict": "verdict_false", "category": "emotion_hijack", "evidence_summary": "无医学研究支持，矿物质主要通过食物摄入", "evil_score": 0.2},
+    {"text": "某地发生大规模暴乱视频（实为国外骚乱旧视频）", "verdict": "verdict_false", "category": "narrative_transplant", "evidence_summary": "反向搜索确认为国外旧事件，与声称地点不符", "evil_score": 0.9},
+    {"text": "AI生成内容已经无法识别真假，整个互联网都是假的", "verdict": "verdict_false", "category": "trust_corrosion", "evidence_summary": "过度夸大，主流平台已有AI内容标注机制", "evil_score": 0.75},
+    {"text": "人形机器人将取代2亿工人，5年内人类面临失业潮", "verdict": "verdict_false", "category": "emotion_hijack", "evidence_summary": "极端预测无数据支撑，技术普及需要更长时间", "evil_score": 0.7},
+    {"text": "日本核污染水排海后中国海鲜全部受污染不能再吃", "verdict": "verdict_false", "category": "emotion_hijack", "evidence_summary": "中国海关持续监测，未发现全面污染证据", "evil_score": 0.7},
+    {"text": "延迟退休政策落地后养老金将减少一半", "verdict": "verdict_false", "category": "data_fabrication", "evidence_summary": "延迟退休方案包含过渡期安排，'减少一半'为捏造", "evil_score": 0.7},
+    {"text": "预制菜全部进入中小学食堂，孩子每天吃防腐剂", "verdict": "verdict_false", "category": "emotion_hijack", "evidence_summary": "教育部已明确预制菜暂不宜进校园", "evil_score": 0.7},
+    {"text": "无人驾驶出租车全面商用后3000万司机全部失业", "verdict": "verdict_false", "category": "emotion_hijack", "evidence_summary": "无人驾驶逐步推广中，'3000万'为极端夸大", "evil_score": 0.65},
+    {"text": "俄乌冲突已引发第三次世界大战", "verdict": "verdict_false", "category": "emotion_hijack", "evidence_summary": "冲突限于两国之间，未引发全球战争", "evil_score": 0.8}
+  ],
+  "patterns": [
+    {"id": "extreme_data_anchor", "category": "data_fabrication", "text": "极端数字制造心理锚点，如'不足1%''暴跌90%''突破30%'等脱离实际的统计", "description": "极端数据锚定：用脱离实际的极端数字制造恐慌"},
+    {"id": "imagery_over_logic", "category": "emotion_hijack", "text": "用具体画面感描述代替逻辑论证，如'排长队''哭成一片''血淋淋''看完愤怒了''紧急扩散'", "description": "画面感替代逻辑：用具体意象激发情绪绕过理性"},
+    {"id": "identity_binding", "category": "emotion_hijack", "text": "将信息与特定身份群体绑定，如'年轻人已经躺平''中年人的无奈''作为父母你必须看'", "description": "身份标签绑定：用群体认同降低批判性思考"},
+    {"id": "selective_stat", "category": "selective_feeding", "text": "只提供单一数据点，省略对比基数、时间范围、人口变化等关键背景信息", "description": "选择性数据：只给部分真相制造虚假整体印象"},
+    {"id": "total_negation", "category": "trust_corrosion", "text": "全称否定所有信息来源，如'都是假的''谁都不信''一切都被控制了''没有真相'", "description": "全面否定：系统性地摧毁信任基础"},
+    {"id": "fake_official_doc", "category": "authority_fake", "text": "伪造政府公文、冒充专家、仿造媒体账号，利用权威信任传播虚假信息", "description": "伪造权威：借壳官方/专家权威发布虚假信息"},
+    {"id": "ai_doom_mongering", "category": "emotion_hijack", "text": "用AI技术替代人类的极端预测制造焦虑，如'取代所有工作''人类被淘汰'等", "description": "AI恐慌制造：利用技术焦虑夸大影响"},
+    {"id": "health_scare", "category": "emotion_hijack", "text": "用食品安全/健康恐慌吸引关注和转发，如'致癌''超标100倍''绝对不能吃'", "description": "健康恐慌：利用生存本能恐惧传播谣言"}
+  ]
+}
