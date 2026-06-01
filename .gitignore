@@ -1,10 +1,39 @@
+# ── 密钥/环境 ──
 .env
+
+# ── Python ──
 __pycache__/
 *.pyc
+*.pyo
 .venv/
-data/knowledge_db.json
-output/
 *.egg-info/
 dist/
+build/
+
+# ── 运行时数据 ──
+data/chroma_db/
+data/knowledge_db.json
+reports/*.json
+
+# ── LaTeX 辅助文件 ──
+docs/*.aux
+docs/*.log
+docs/*.out
+docs/*.toc
+
+# ── IDE / 系统 ──
 .DS_Store
+.vscode
+.idea
+.claude/
+dump.rdb
+
+# ── 第三方工具 (子模块/large binary) ──
 tools/firecrawl/
+tools/OpenOSINT/
+
+# ── 论文 (large binary, 独立管理) ──
+paper/
+
+# ── 输出目录 ──
+output/

@@ -1,111 +1,26 @@
 {
-  "description": "真相猎人测试数据集 — 覆盖6类认知操纵手法",
-  "version": "1.0",
+  "description": "邪恶思潮测试数据集 — 覆盖6类认知操纵 + ground truth",
+  "version": "2.0",
   "total": 15,
   "rumors": [
-    {
-      "id": "test_001",
-      "text": "中国结婚率不足1%，离婚排长队，年轻人已经躺平了",
-      "category": "data_fabrication",
-      "difficulty": "easy"
-    },
-    {
-      "id": "test_002",
-      "text": "中国失业率突破30%，史上最高，大量企业倒闭潮来了",
-      "category": "data_fabrication",
-      "difficulty": "easy"
-    },
-    {
-      "id": "test_003",
-      "text": "某地老人被当街殴打，路人无人敢管！社会道德沦丧！愤怒转发了！",
-      "category": "emotion_hijack",
-      "difficulty": "medium"
-    },
-    {
-      "id": "test_004",
-      "text": "紧急扩散！某品牌牛奶被检测出致癌物质超标100倍！为了家人健康必须转发！",
-      "category": "emotion_hijack",
-      "difficulty": "easy"
-    },
-    {
-      "id": "test_005",
-      "text": "国内某地发生大规模暴乱，武警出动镇压（视频实为2023年法国骚乱画面）",
-      "category": "narrative_transplant",
-      "difficulty": "medium"
-    },
-    {
-      "id": "test_006",
-      "text": "某地洪灾惨烈画面，数万人无家可归（图片实为2021年郑州暴雨旧图标注为当前某地）",
-      "category": "narrative_transplant",
-      "difficulty": "medium"
-    },
-    {
-      "id": "test_007",
-      "text": "教育部发布红头文件：2025年起全面取消中考，实行12年义务教育",
-      "category": "authority_fake",
-      "difficulty": "easy"
-    },
-    {
-      "id": "test_008",
-      "text": "央行紧急通知：所有银行存款利率降为零，鼓励消费拉动经济",
-      "category": "authority_fake",
-      "difficulty": "easy"
-    },
-    {
-      "id": "test_009",
-      "text": "所有官方数据都是假的，统计局全是编的，你信就输了。这个世界根本没有真相。",
-      "category": "trust_corrosion",
-      "difficulty": "medium"
-    },
-    {
-      "id": "test_010",
-      "text": "专家说的你也信？专家就是专门骗大家的。媒体都是被控制的，独立思考吧。",
-      "category": "trust_corrosion",
-      "difficulty": "hard"
-    },
-    {
-      "id": "test_011",
-      "text": "某市2024年犯罪案件同比上升15%，治安严重恶化",
-      "category": "selective_feeding",
-      "difficulty": "hard"
-    },
-    {
-      "id": "test_012",
-      "text": "长期喝纯净水会导致骨质疏松，因为纯净水会带走体内矿物质",
-      "category": "emotion_hijack",
-      "difficulty": "easy"
-    },
-    {
-      "id": "test_013",
-      "text": "钟南山院士推荐：某某牌保健品可以有效预防癌症，央视都报道了",
-      "category": "authority_fake",
-      "difficulty": "easy"
-    },
-    {
-      "id": "test_014",
-      "text": "2024年中国粮食产量大幅下降，饥荒风险上升，粮价即将暴涨",
-      "category": "selective_feeding",
-      "difficulty": "hard"
-    },
-    {
-      "id": "test_015",
-      "text": "中国GDP已经被印度超越，跌出世界前五，经济全面衰退",
-      "category": "data_fabrication",
-      "difficulty": "easy"
-    }
+    {"id": "test_001", "text": "中国结婚率不足1%，离婚排长队，年轻人已经躺平了", "category": "data_fabrication", "difficulty": "easy", "ground_truth": "虚假", "truth_note": "国家统计局2024年数据：结婚率约4.3‰"},
+    {"id": "test_002", "text": "中国失业率突破30%，史上最高，大量企业倒闭潮来了", "category": "data_fabrication", "difficulty": "easy", "ground_truth": "虚假", "truth_note": "城镇调查失业率约5.2%"},
+    {"id": "test_003", "text": "某地老人被当街殴打，路人无人敢管！社会道德沦丧！", "category": "emotion_hijack", "difficulty": "medium", "ground_truth": "存疑", "truth_note": "需核实具体事件，但'无人敢管'为情绪煽动"},
+    {"id": "test_004", "text": "紧急扩散！某品牌牛奶被检测出致癌物质超标100倍！", "category": "emotion_hijack", "difficulty": "easy", "ground_truth": "虚假", "truth_note": "无官方检测报告支持，'紧急扩散'为操纵话术"},
+    {"id": "test_005", "text": "国内某地发生大规模暴乱，武警出动镇压（视频实为国外骚乱）", "category": "narrative_transplant", "difficulty": "medium", "ground_truth": "虚假", "truth_note": "素材为国外事件，时空信息被篡改"},
+    {"id": "test_006", "text": "某地洪灾惨烈画面，数万人无家可归（图片实为旧图）", "category": "narrative_transplant", "difficulty": "medium", "ground_truth": "虚假", "truth_note": "图片为历史灾害图，时间地点被篡改"},
+    {"id": "test_007", "text": "教育部发布红头文件：2025年起全面取消中考", "category": "authority_fake", "difficulty": "easy", "ground_truth": "虚假", "truth_note": "教育部官网无此通知，文件格式不规范"},
+    {"id": "test_008", "text": "央行紧急通知：所有银行存款利率降为零，鼓励消费", "category": "authority_fake", "difficulty": "easy", "ground_truth": "虚假", "truth_note": "央行官网无此公告，伪造官方通知"},
+    {"id": "test_009", "text": "所有官方数据都是假的，统计局全是编的，你信就输了", "category": "trust_corrosion", "difficulty": "medium", "ground_truth": "虚假", "truth_note": "全称否定违反基本逻辑，IMF等国际机构数据趋势一致"},
+    {"id": "test_010", "text": "专家说的你也信？专家就是专门骗大家的。独立思考吧", "category": "trust_corrosion", "difficulty": "hard", "ground_truth": "虚假", "truth_note": "反智主义口号，系统性否定专业知识体系"},
+    {"id": "test_011", "text": "某市2024年犯罪案件同比上升15%，治安严重恶化", "category": "selective_feeding", "difficulty": "hard", "ground_truth": "存疑", "truth_note": "数据本身可能真实但隐藏了人口增长和破案率提升"},
+    {"id": "test_012", "text": "长期喝纯净水会导致骨质疏松，因为纯净水会带走体内矿物质", "category": "emotion_hijack", "difficulty": "easy", "ground_truth": "虚假", "truth_note": "无医学研究支持，矿物质主要通过食物摄入"},
+    {"id": "test_013", "text": "钟南山院士推荐：某某牌保健品可以有效预防癌症", "category": "authority_fake", "difficulty": "easy", "ground_truth": "虚假", "truth_note": "钟南山从未推荐过任何保健品"},
+    {"id": "test_014", "text": "2024年中国粮食产量大幅下降，饥荒风险上升", "category": "selective_feeding", "difficulty": "hard", "ground_truth": "虚假", "truth_note": "国家统计局：2024年粮食产量约1.4万亿斤，连续增长"},
+    {"id": "test_015", "text": "中国GDP已经被印度超越，跌出世界前五", "category": "data_fabrication", "difficulty": "easy", "ground_truth": "虚假", "truth_note": "IMF数据：中国GDP约18.74万亿，印度约3.91万亿"}
   ],
   "real_news_control": [
-    {
-      "id": "real_001",
-      "text": "中国2024年粮食总产量约1.4万亿斤，同比增长0.5%，连续多年稳定在1.3万亿斤以上",
-      "category": "none",
-      "difficulty": "easy"
-    },
-    {
-      "id": "real_002",
-      "text": "中国空间站天宫完成在轨建造，神舟十九号乘组顺利进驻开展科学实验",
-      "category": "none",
-      "difficulty": "easy"
-    }
+    {"id": "real_001", "text": "中国2024年粮食总产量约1.4万亿斤，同比增长0.5%", "category": "none", "difficulty": "easy", "ground_truth": "真实", "truth_note": "国家统计局数据，属实"},
+    {"id": "real_002", "text": "中国空间站天宫完成在轨建造，神舟十九号乘组顺利进驻", "category": "none", "difficulty": "easy", "ground_truth": "真实", "truth_note": "中国载人航天工程办公室官方消息，属实"}
   ]
 }

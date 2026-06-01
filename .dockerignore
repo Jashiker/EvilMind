@@ -1,0 +1,39 @@
+# ── Git ──
+.git
+.gitignore
+
+# ── 开发环境 ──
+.venv
+__pycache__
+*.pyc
+*.pyo
+.claude
+
+# ── 配置/密钥 ──
+.env
+.env.*
+
+# ── 运行时产出 ──
+reports/*
+output
+*.egg-info
+dist
+
+# ── 文档/论文 ──
+paper
+docs
+*.md
+!README.md
+
+# ── 测试/脚本 ──
+test_*.py
+tools/OpenOSINT
+tools/playwright_scraper.js
+Chinese_Rumor_Dataset
+frontend
+
+# ── 系统文件 ──
+.DS_Store
+dump.rdb
+.vscode
+.idea

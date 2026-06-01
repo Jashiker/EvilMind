@@ -1,167 +1,197 @@
-"""Firecrawl 网页抓取工具
-
-使用 Firecrawl API 获取网页的干净 Markdown 内容，
-比 BeautifulSoup 提取更准确，保留原文结构和关键信息。
-
-API: https://api.firecrawl.dev
-免费额度: 500 credits/月
-"""
+"""Firecrawl 工具 — 本地部署 + Claude Code CLI 搜索 + 360搜索混合策略"""
 
 from __future__ import annotations
-
-import json
-import logging
+import asyncio, json, logging, re
 from typing import Any
-
 import httpx
 
 logger = logging.getLogger(__name__)
+FIRECRAWL_API_BASE = "http://localhost:3002"
 
-FIRECRAWL_API_BASE = "https://api.firecrawl.dev"
+CLAUDECLI_TIMEOUT = 45
+URL_PATTERN = re.compile(r'https?://[^\s\)\]\"\']+', re.IGNORECASE)
+
+
+def _extract_opencode_text(raw: str) -> str:
+    """从 opencode --format json 输出中提取文字内容"""
+    parts = []
+    for line in raw.splitlines():
+        try:
+            obj = json.loads(line)
+            if obj.get("type") == "text" and obj.get("part", {}).get("type") == "text":
+                parts.append(obj["part"].get("text", ""))
+        except (json.JSONDecodeError, KeyError):
+            continue
+    return "\n".join(parts).strip()
 
 
 async def firecrawl_scrape(url: str, api_key: str = "") -> str:
-    """用 Firecrawl 抓取单个网页，返回干净的 Markdown 内容
+    """抓取单个URL的网页文字 — 直接HTTP抓取 + opencode降级"""
+    try:
+        from search.web_search import fetch_url
+        text = await fetch_url(url, max_chars=5000)
+        if text and len(text) > 200:
+            logger.info(f"fetch_url: {len(text)} chars from {url[:60]}")
+            return text
+    except Exception:
+        pass
 
-    Args:
-        url: 目标网页 URL
-        api_key: Firecrawl API key
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "opencode", "run", "--format", "json",
+            f"仅使用WebFetch工具获取{url}的页面文字，不分析不总结，只输出文字",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=30)
+        text = _extract_opencode_text(stdout.decode("utf-8", errors="replace"))
+        if text:
+            logger.info(f"opencode scrape: {len(text)} chars from {url[:60]}")
+            return text[:5000]
+    except Exception as e:
+        logger.debug(f"opencode scrape fallback failed: {e}")
 
-    Returns:
-        网页的 Markdown 格式内容
-    """
-    if not api_key:
-        return f"[Firecrawl 未配置 API Key，无法抓取] {url}"
+    return f"无法获取: {url}"
 
-    async with httpx.AsyncClient(timeout=60) as client:
-        try:
-            resp = await client.post(
-                f"{FIRECRAWL_API_BASE}/v1/scrape",
-                json={"url": url, "formats": ["markdown"]},
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json",
-                },
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                if data.get("success"):
-                    markdown = data.get("data", {}).get("markdown", "")
-                    if markdown:
-                        logger.info(f"Firecrawl scrape: {len(markdown)} chars from {url[:60]}")
-                        return markdown[:5000]  # 限制长度
-                return f"Firecrawl 抓取失败: {data.get('error', 'unknown')}"
-            elif resp.status_code == 402:
-                return f"Firecrawl API 额度不足: {resp.text[:200]}"
-            else:
-                return f"Firecrawl HTTP {resp.status_code}: {resp.text[:200]}"
-        except Exception as e:
-            return f"Firecrawl 异常: {e}"
+
+async def claude_web_search(query: str, context: str = "") -> str:
+    """Claude Code CLI 无交互模式 Web 搜索 — 返回搜索结果文本+URL"""
+    prompt = f"""请用 web_search 搜索以下内容，返回搜索结果列表，每行包含标题和URL:
+
+查询: {query}"""
+    if context:
+        prompt += f"\n上下文: {context}"
+    prompt += "\n\n请简要返回搜索结果，每条包含标题和完整URL。"
+
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "claude", "-p", prompt, "--print", "--output-format", "text",
+            "--fork-session",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await asyncio.wait_for(
+            proc.communicate(), timeout=CLAUDECLI_TIMEOUT)
+        output = stdout.decode("utf-8", errors="replace").strip()
+        if stderr:
+            logger.debug(f"Claude CLI stderr: {stderr.decode('utf-8', errors='replace')[:200]}")
+        if not output:
+            return f"Claude CLI 搜索无结果 (exit={proc.returncode})"
+        logger.info(f"Claude CLI search '{query[:30]}': {len(output)} chars")
+        return output[:4000]
+    except asyncio.TimeoutError:
+        return f"Claude CLI 搜索超时 ({CLAUDECLI_TIMEOUT}s)"
+    except FileNotFoundError:
+        return "Claude CLI 未安装 (claude 命令不可用)"
+    except Exception as e:
+        return f"Claude CLI 异常: {e}"
+
+
+async def claude_web_search_and_scrape(query: str, context: str = "", max_urls: int = 3) -> str:
+    """Claude Code CLI 搜索 → 返回搜索结果(含URL和摘要)"""
+    search_output = await claude_web_search(query, context)
+    if search_output.startswith("Claude CLI") or search_output.startswith("Claude CLI 未安装"):
+        return json.dumps([{"error": search_output}], ensure_ascii=False)
+
+    urls = list(dict.fromkeys(URL_PATTERN.findall(search_output)))[:max_urls]
+
+    if not urls:
+        return json.dumps([{"source": "claude_cli", "query": query,
+                            "summary": search_output[:1000]}], ensure_ascii=False)
+
+    logger.info(f"Claude CLI → {len(urls)} URLs → 返回搜索摘要")
+    results = [{"source": "claude_cli", "query": query, "urls_found": urls,
+                "summary": search_output[:2000]}]
+    return json.dumps(results, ensure_ascii=False, indent=2)
 
 
 async def firecrawl_search(query: str, api_key: str = "", max_results: int = 3) -> str:
-    """用 Firecrawl 搜索并抓取搜索结果页内容
+    """混合搜索: 360搜索发现URL → Firecrawl精读内容"""
+    results = []
+    try:
+        from search.web_search import search_web
+        web_results = await search_web(query, max_results)
+        if not web_results:
+            return json.dumps([], ensure_ascii=False)
 
-    Args:
-        query: 搜索关键词
-        api_key: Firecrawl API key
-        max_results: 最大结果数
+        headers = {"Content-Type": "application/json"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
 
-    Returns:
-        搜索结果 + 页面内容的 JSON
-    """
-    if not api_key:
-        return f"[Firecrawl 未配置 API Key，无法搜索] query: {query}"
+        async with httpx.AsyncClient(timeout=60) as client:
+            for r in web_results[:max_results]:
+                url = r.get("url", "")
+                title = r.get("title", "")
+                snippet = r.get("snippet", "")
+                if not url:
+                    continue
+                try:
+                    resp = await client.post(
+                        f"{FIRECRAWL_API_BASE}/v1/scrape",
+                        json={"url": url, "formats": ["markdown"]},
+                        headers=headers,
+                    )
+                    if resp.status_code == 200:
+                        d = resp.json()
+                        if d.get("success"):
+                            md = d.get("data", {}).get("markdown", "") or snippet
+                            results.append({"title": title, "url": url, "content": md[:1500]})
+                        else:
+                            results.append({"title": title, "url": url, "content": snippet[:1000]})
+                    else:
+                        results.append({"title": title, "url": url, "content": snippet[:1000]})
+                except Exception:
+                    results.append({"title": title, "url": url, "content": snippet[:1000]})
 
-    async with httpx.AsyncClient(timeout=60) as client:
-        try:
-            resp = await client.post(
-                f"{FIRECRAWL_API_BASE}/v1/search",
-                json={
-                    "query": query,
-                    "limit": max_results,
-                    "scrapeOptions": {"formats": ["markdown"]},
-                },
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json",
-                },
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                if data.get("success"):
-                    results = []
-                    for item in data.get("data", [])[:max_results]:
-                        results.append({
-                            "title": item.get("title", ""),
-                            "url": item.get("url", ""),
-                            "content": (item.get("markdown", "") or item.get("description", ""))[:1500],
-                        })
-                    logger.info(f"Firecrawl search: '{query[:30]}' -> {len(results)} results")
-                    return json.dumps(results, ensure_ascii=False, indent=2)
-                return f"Firecrawl 搜索失败: {data.get('error', '')}"
-            elif resp.status_code == 402:
-                return f"Firecrawl API 额度不足: {resp.text[:200]}"
-            else:
-                return f"Firecrawl HTTP {resp.status_code}"
-        except Exception as e:
-            return f"Firecrawl 异常: {e}"
+        logger.info(f"FC混合搜索 '{query[:30]}': {len(results)} results")
+        return json.dumps(results, ensure_ascii=False, indent=2)
+    except Exception as e:
+        return json.dumps([{"error": str(e)}], ensure_ascii=False)
 
-
-# ============================================================
-# 供 DeepSeek function calling 使用的工具定义
-# ============================================================
 
 FIRECRAWL_TOOLS = [
     {
         "type": "function",
         "function": {
             "name": "firecrawl_scrape",
-            "description": "使用Firecrawl抓取指定网页的完整内容，返回干净的Markdown格式文本。适合读取官方公告、新闻报道、数据页面等。比普通抓取更准确、更干净。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "url": {
-                        "type": "string",
-                        "description": "要抓取的网页URL，例如'https://www.stats.gov.cn/...'",
-                    }
-                },
-                "required": ["url"],
-            },
+            "description": "Firecrawl抓取指定网页的干净Markdown内容，适合深度阅读官方公告、数据页面原文。",
+            "parameters": {"type": "object", "properties": {"url": {"type": "string", "description": "网页URL"}}, "required": ["url"]},
         },
     },
     {
         "type": "function",
         "function": {
             "name": "firecrawl_search",
-            "description": "使用Firecrawl搜索互联网并同时抓取搜索结果页面的完整内容（Markdown格式）。比普通搜索更强大，直接返回去噪后的页面正文。适合深度核查时需要阅读原始网页内容时使用。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "搜索关键词，例如'中国2024年GDP 国家统计局 官方数据'",
-                    }
-                },
-                "required": ["query"],
-            },
+            "description": "Firecrawl混合搜索: 360搜索引擎发现 → Firecrawl深度抓取原文。搜索最新网页信息并用Firecrawl提取完整Markdown。",
+            "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "搜索关键词"}}, "required": ["query"]},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "claude_web_search_deep",
+            "description": "Claude Code CLI 深度考证: 由Claude自主设计搜索策略 → 获取URL → Firecrawl精读原文。适合需要多角度交叉验证的复杂事实核查。",
+            "parameters": {"type": "object", "properties": {
+                "query": {"type": "string", "description": "搜索关键词(4-10个中文字)"},
+                "context": {"type": "string", "description": "搜索上下文: 原始信息的关键事实和需要验证的数据点"}
+            }, "required": ["query"]},
         },
     },
 ]
 
 
 async def execute_firecrawl_tool(name: str, arguments: dict[str, Any], api_key: str = "") -> str:
-    """执行 Firecrawl 工具调用"""
     if name == "firecrawl_scrape":
         url = arguments.get("url", "")
-        if not url:
-            return "错误: 未提供URL"
+        if not url: return "错误: 未提供URL"
         return await firecrawl_scrape(url, api_key)
-
     elif name == "firecrawl_search":
         query = arguments.get("query", "")
-        if not query:
-            return "错误: 未提供搜索关键词"
+        if not query: return "错误: 未提供搜索关键词"
         return await firecrawl_search(query, api_key)
-
-    return f"未知 Firecrawl 工具: {name}"
+    elif name == "claude_web_search_deep":
+        query = arguments.get("query", "")
+        context = arguments.get("context", "")
+        if not query: return "错误: 未提供搜索关键词"
+        return await claude_web_search_and_scrape(query, context)
+    return f"未知工具: {name}"

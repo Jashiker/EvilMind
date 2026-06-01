@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邪恶思潮 — 认知战防御与舆情治理</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+:root{--bg:#0b0f15;--surface:#131822;--card:#18202d;--border:#232d3d;--divider:#1a2333;--text:#e6edf3;--text2:#8896a7;--text3:#4c5566;--red:#f85149;--redBg:rgba(248,81,73,.1);--redBorder:rgba(248,81,73,.3);--green:#3fb950;--blue:#58a6ff;--amber:#d2991d;--purple:#a78bfa;--radius:6px;--shadow:0 2px 8px rgba(0,0,0,.25);--font:system-ui,-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+[data-theme="light"]{--bg:#f5f6f8;--surface:#fff;--card:#fff;--border:#e1e4e8;--divider:#e8eaed;--text:#1a1d24;--text2:#636c7b;--text3:#98a0ad;--red:#cf222e;--redBg:rgba(207,34,46,.06);--redBorder:rgba(207,34,46,.25);--green:#1a7f37;--blue:#0550ae;--amber:#9a6700;--purple:#6f42c1;--shadow:0 1px 4px rgba(31,35,40,.08)}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:15px;line-height:1.55;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.w{max-width:1040px;margin:0 auto;padding:0 28px}
+
+/* Nav */
+.nav{display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;background:var(--bg);z-index:10;padding:0 28px;border-bottom:1px solid var(--divider)}
+.nav-logo{font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.nav-logo span{color:var(--red)}
+.nav-links{display:flex;align-items:center;gap:24px}
+.nav-links a{font-size:.8rem;color:var(--text2);text-decoration:none;font-weight:500;transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+.nav-links button{font-size:.72rem;color:var(--text2);background:none;border:1px solid var(--border);border-radius:var(--radius);padding:5px 12px;cursor:pointer;font-family:var(--font)}
+
+/* Hero */
+.hero{padding:100px 0 80px;text-align:center}
+.hero-tag{display:inline-block;font-size:.68rem;font-weight:600;color:var(--red);border:1px solid var(--redBorder);padding:5px 14px;border-radius:20px;margin-bottom:24px;letter-spacing:.04em;background:var(--redBg)}
+.hero h1{font-size:clamp(2.4rem,5.5vw,4rem);font-weight:800;letter-spacing:-.03em;line-height:1.08;margin-bottom:18px}
+.hero h1 .brand{color:var(--red)}
+.hero p{font-size:1.05rem;color:var(--text2);max-width:600px;margin:0 auto 32px;line-height:1.65}
+.hero .btn{display:inline-block;background:var(--red);color:#fff;font-size:.92rem;font-weight:600;padding:13px 40px;border-radius:var(--radius);text-decoration:none;transition:opacity .2s}
+.hero .btn:hover{opacity:.9}
+.hero .btn-out{display:inline-block;color:var(--text2);font-size:.88rem;font-weight:500;padding:13px 28px;text-decoration:none;margin-left:8px;transition:color .15s}
+.hero .btn-out:hover{color:var(--text)}
+
+/* Pipe */
+.pipe{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:56px;flex-wrap:wrap}
+.pipe-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 22px;text-align:center;min-width:140px;box-shadow:var(--shadow)}
+.pipe-card .pi{font-size:1.4rem;margin-bottom:6px}
+.pipe-card .pn{font-size:.8rem;font-weight:600;color:var(--text)}
+.pipe-card .pr{font-size:.65rem;color:var(--text2);margin-top:2px}
+.pipe-arrow{font-size:1.1rem;color:var(--text3)}
+
+/* Sections */
+.sec{padding:80px 0;border-top:1px solid var(--divider)}
+.sec-label{font-size:.65rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.08em;text-align:center;margin-bottom:8px}
+.sec h2{font-size:1.6rem;font-weight:700;text-align:center;margin-bottom:12px;letter-spacing:-.02em}
+.sec .sub{text-align:center;color:var(--text2);font-size:.85rem;margin-bottom:44px;max-width:560px;margin-left:auto;margin-right:auto}
+
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);transition:box-shadow .2s}
+.card:hover{box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.card .ci{font-size:1.5rem;margin-bottom:12px}
+.card .ct{font-size:.88rem;font-weight:600;margin-bottom:6px;color:var(--text)}
+.card .cd{font-size:.76rem;color:var(--text2);line-height:1.6}
+
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:30px 14px;text-align:center;box-shadow:var(--shadow)}
+.stat .sn{font-size:2rem;font-weight:800;color:var(--red)}
+.stat .sl{font-size:.72rem;color:var(--text2);margin-top:4px}
+
+.eco{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:30px 22px;text-align:center;box-shadow:var(--shadow)}
+.eco .ei{font-size:2rem;margin-bottom:10px}
+.eco .et{font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--text)}
+.eco .ed{font-size:.72rem;color:var(--text2);line-height:1.6}
+
+.cta-sec{padding:100px 0;text-align:center;border-top:1px solid var(--divider)}
+.cta-sec h2{font-size:2rem;font-weight:700;margin-bottom:12px;letter-spacing:-.02em}
+.cta-sec p{font-size:.95rem;color:var(--text2);margin-bottom:32px}
+.cta-sec .btn{display:inline-block;background:var(--red);color:#fff;font-size:.92rem;font-weight:600;padding:13px 40px;border-radius:var(--radius);text-decoration:none;transition:opacity .2s}
+.cta-sec .btn:hover{opacity:.9}
+
+footer{padding:32px 0;text-align:center;font-size:.72rem;color:var(--text3);border-top:1px solid var(--border)}
+footer .fg{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:16px}
+footer .fc{text-align:left}
+footer .fc h4{font-size:.7rem;font-weight:600;color:var(--text2);margin-bottom:8px}
+footer .fc a{display:block;font-size:.66rem;color:var(--text3);text-decoration:none;margin-bottom:4px}
+footer .fc a:hover{color:var(--text)}
+
+@media(max-width:768px){.g2,.g3,.g4{grid-template-columns:1fr}.hero h1{font-size:2rem}.pipe{flex-direction:column}.pipe-arrow{transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-logo">邪恶<span>思潮</span></span>
+  <div class="nav-links">
+    <a href="#cap">能力</a><a href="#features">功能</a><a href="#scene">场景</a><a href="/guide">使用说明</a><a href="#deploy">部署</a>
+    <button id="btn-theme" onclick="t()">🌙 深色</button>
+  </div>
+</nav>
+
+<section class="hero"><div class="w">
+  <div class="hero-tag">零信任认知战防御 · 舆情治理平台</div>
+  <h1><span class="brand">邪恶思潮</span></h1>
+  <p>基于 DeepSeek-v4-pro 的零信任多Agent谣言核查系统。4阶段严格管道——指纹研判团队提炼关键词、三路侦察兵并行取证、合议庭3仲裁官独立裁定、品质审核官4维评估，全流程 SSE 实时推送，证据可点击溯源。</p>
+  <a href="/app" class="btn">体验 Demo</a>
+  <a href="#cap" class="btn-out">了解更多 ↓</a>
+  <div class="pipe">
+    <div class="pipe-card"><div class="pi">🧬</div><div class="pn">指纹研判团队</div><div class="pr">5专家并行·关键词提炼</div></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-card"><div class="pi">🔍</div><div class="pn">三路侦察兵</div><div class="pr">事实核查·深度挖掘·来源验证</div></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-card"><div class="pi">⚖️</div><div class="pn">合议庭仲裁</div><div class="pr">3仲裁官独立裁定·首席综合</div></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-card"><div class="pi">🛡️</div><div class="pn">品质审核官</div><div class="pr">报告生成·4维质量自评</div></div>
+  </div>
+</div></section>
+
+<section class="sec" id="cap"><div class="w">
+  <div class="sec-label">核心能力</div>
+  <h2>一站式认知战防御引擎</h2>
+  <p class="sub">从14维指纹识别到多源交叉验证到合议庭裁定，全链路自动化。支持文字和图片输入，私有化部署保障数据安全。</p>
+  <div class="g3">
+    <div class="card"><div class="ci">🧬</div><div class="ct">指纹研判团队</div><div class="cd">5位专家并行分析：指纹对比官提取14维语言特征，进化树分析师追溯变异历史，意图挖掘官检测认知操纵手法，风险评估官量化舆情风险，综合研判官输出恶意评分并提炼三组搜索关键词。</div></div>
+    <div class="card"><div class="ci">🔍</div><div class="ct">三路并行取证</div><div class="cd">Claude事实核查官精准验证每个事实主张，Claude深度挖掘官深挖事件背景与舆论趋势，OpenOSINT验证官对来源域名进行5级可信度评级。各Agent自主调用360搜索和Claude CLI工具链。</div></div>
+    <div class="card"><div class="ci">⚖️</div><div class="ct">合议庭独立裁定</div><div class="cd">3位仲裁官独立审议全部证据后各自裁定，首席仲裁官综合3份独立意见确认共识、标记争议，防止单一偏见。输出5级综合判定（虚假/如实/操纵/存疑/未知）。</div></div>
+    <div class="card"><div class="ci">🛡️</div><div class="ct">认知战攻击检测</div><div class="cd">内置4种认知战攻击模板——系统性信任瓦解、经济崩溃叙事、社会分裂工程、政策破坏攻击。自动匹配攻击模式，生成威胁等级（Critical/High），支持360安全大脑联动。</div></div>
+    <div class="card"><div class="ci">🔗</div><div class="ct">全链路证据溯源</div><div class="cd">每条判定附带真实搜索URL，可点击直达原文验证。vis.js交互式证据网络图展示完整溯源链路（声明→来源→判定），交叉验证虚线连接同结论节点。</div></div>
+    <div class="card"><div class="ci">🔑</div><div class="ct">关键词精准分流</div><div class="cd">指纹研判官提炼三组搜索关键词——事实核查关键词、深度搜索关键词、来源验证关键词——分别精准传递给对应的侦察兵Agent，自动注入年份标签确保搜索时效性。</div></div>
+  </div>
+</div></section>
+
+<section class="sec" id="features"><div class="w">
+  <div class="sec-label">产品功能</div>
+  <h2>开箱即用的核查体验</h2>
+  <p class="sub">文字输入、图片审查、实时进度、证据网络、认知处方、辟谣分享 — 六位一体的完整核查工作台。</p>
+  <div class="g3">
+    <div class="card"><div class="ci">📝</div><div class="ct">双模输入</div><div class="cd">支持直接粘贴文字信息，也支持上传截图或 Ctrl+V 粘贴图片。图片通过百度飞桨OCR自动提取文字后送入核查流水线。</div></div>
+    <div class="card"><div class="ci">📡</div><div class="ct">SSE 实时流式推送</div><div class="cd">全流程 SSE（Server-Sent Events）真流式传输，4个Agent面板进度条实时更新，每个阶段的分析结果即时可见，无需等待全部完成。</div></div>
+    <div class="card"><div class="ci">🕸️</div><div class="ct">交互式证据网络</div><div class="cd">vis.js 渲染声明→来源→判定的节点网络图。双击来源节点直接打开真实URL验证，同结论节点虚线连接表示交叉验证。</div></div>
+    <div class="card"><div class="ci">🛡️</div><div class="ct">认知处方</div><div class="cd">每份报告附带面向普通读者的防骗指南——拆解谣言使用的具体操纵手法（怎么骗你的）和针对性防骗建议（怎么防）。</div></div>
+    <div class="card"><div class="ci">📤</div><div class="ct">辟谣卡片</div><div class="cd">自动生成辟谣卡片（谣言摘要 + 真相 + 来源），支持一键复制分享。方便快速传播核查结论至社交媒体和内部群组。</div></div>
+    <div class="card"><div class="ci">🕸️</div><div class="ct">知识图谱</div><div class="cd">500+已核查案例的可视化知识图谱。按攻击维度（菱形）、操纵手法（圆点）、案例（方块）分类着色，连线粗细反映邪恶评分。</div></div>
+    <div class="card"><div class="ci">💬</div><div class="ct">用户反馈闭环</div><div class="cd">支持对核查结果进行准确/不准确评价，反馈数据用于持续优化知识库和Agent判定策略，形成持续改进的认知战防御体系。</div></div>
+    <div class="card"><div class="ci">🧠</div><div class="ct">国产大模型驱动</div><div class="cd">基于 DeepSeek-v4-pro 全国产大模型，通过 OpenAI SDK 兼容协议调用。每个Agent拥有独立的系统提示词和角色定义，确保专业化分工。</div></div>
+    <div class="card"><div class="ci">🏛️</div><div class="ct">私有化部署</div><div class="cd">支持政务内网、企业专网私有化部署，数据不出域。360搜索引擎原生支持国内官方数据源优先索引，国产化软硬件全适配。</div></div>
+  </div>
+</div></section>
+
+<section class="sec" id="scene"><div class="w">
+  <div class="sec-label">应用场景</div>
+  <h2>多场景覆盖 · 全行业适配</h2>
+  <p class="sub">从政务舆情治理到认知战防御，从金融风控到企业品牌安全，4阶段管道覆盖全核查场景。</p>
+  <div class="g2">
+    <div class="card"><div class="ct">🏛️ 政务舆情治理</div><div class="cd">地方网信办、宣传部门使用：自动识别辖区内涉政谣言、民生虚假信息、突发事件不实报道。360搜索对 .gov.cn 官方源优先索引，指纹研判团队识别伪造红头文件和冒用权威。</div></div>
+    <div class="card"><div class="ct">🛡️ 认知战防御</div><div class="cd">识别境外势力针对中国发动的系统性认知战攻击。自动匹配4种认知战模板，检测跨平台同步推送行为。品质审核官4维评估确保每份报告的证据充分度和结论严谨性。</div></div>
+    <div class="card"><div class="ct">💰 金融风控</div><div class="cd">实时核查A股小作文、虚假财报、政策谣言。交叉验证金融数据与官方统计，预警"重大利好/利空"类市场操纵信息。三路侦察兵从事实、背景、来源三个维度同时取证。</div></div>
+    <div class="card"><div class="ct">🏥 公共卫生</div><div class="cd">监测疾病谣言、疫苗虚假信息、食品安全恐慌。自动比对卫健委/WHO官方数据，识别"XX致癌""XX超标百倍"等典型情绪劫持声明。关键词精准分流确保搜索覆盖面。</div></div>
+  </div>
+</div></section>
+
+<section class="sec" id="deploy"><div class="w">
+  <div class="sec-label">部署方案</div>
+  <h2>灵活部署 · 数据安全</h2>
+  <p class="sub">支持公有云SaaS、政务内网私有化、360生态混合云三种模式。全国产化适配，数据不出域。</p>
+  <div class="g3">
+    <div class="eco"><div class="ei">☁️</div><div class="et">SaaS 云端版</div><div class="ed">即开即用，按调用量计费。适合中小企业和快速验证场景。标准 RESTful API，1小时集成。</div></div>
+    <div class="eco"><div class="ei">🏛️</div><div class="et">私有化部署</div><div class="ed">政务内网/企业专网部署，数据不出域。支持国产操作系统和信创硬件。提供 pip 安装或 Docker 方案，仅需 DeepSeek API 连通性。</div></div>
+    <div class="eco"><div class="ei">🔗</div><div class="et">混合云 · 360集成</div><div class="ed">与360安全大脑、360浏览器联动。360搜索对国内官方源优先索引，可与现有舆情系统双向数据联动。</div></div>
+  </div>
+</div></section>
+
+<section class="cta-sec"><div class="w">
+  <h2>准备好体验了吗？</h2>
+  <p>输入任意可疑信息，4阶段管道将完成从指纹提取到证据裁定的全流程核查。<br>支持文字粘贴和截图OCR，SSE实时流式推送每个Agent的进度。</p>
+  <a href="/app" class="btn">立即体验 Demo</a>
+</div></section>
+
+<footer><div class="w">
+  <div class="fg">
+    <div class="fc"><h4>产品</h4><a href="#cap">核心能力</a><a href="#features">产品功能</a><a href="#scene">应用场景</a><a href="#deploy">部署方案</a></div>
+    <div class="fc"><h4>文档</h4><a href="/app">在线Demo</a><a href="/guide">使用说明</a><a href="/guide#api">API参考</a></div>
+    <div class="fc"><h4>联系</h4><a href="#">预约演示</a><a href="#">商务合作</a></div>
+  </div>
+  <p>邪恶思潮 v2.0 · 4阶段零信任多Agent谣言核查系统 · MindHacks 赛道三</p>
+</div></footer>
+
+<script>
+function t(){var h=document.documentElement;var c=h.getAttribute('data-theme')||'light';var n=c==='dark'?'light':'dark';h.setAttribute('data-theme',n);document.getElementById('btn-theme').textContent=n==='dark'?'☀️ 浅色':'🌙 深色';localStorage.setItem('evil-sichao-theme',n)}
+(function(){var s=localStorage.getItem('evil-sichao-theme')||'light';document.documentElement.setAttribute('data-theme',s);document.getElementById('btn-theme').textContent=s==='dark'?'☀️ 浅色':'🌙 深色'})();
+</script>
+</body>
+</html>

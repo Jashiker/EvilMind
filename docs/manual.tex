@@ -1,0 +1,682 @@
+% ============================================================================
+% 邪恶思潮 · 360舆情分析 — 使用说明文档
+% 版本: v2.0
+% 日期: 2026年5月
+% 编译: xelatex manual.tex
+% ============================================================================
+
+\documentclass[12pt,a4paper]{ctexart}
+
+% ── 包 ──
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{titlesec}
+\usepackage{fontawesome5}
+
+% ── 颜色定义 ──
+\definecolor{bg}{HTML}{0b0f19}
+\definecolor{surface}{HTML}{141a26}
+\definecolor{red}{HTML}{cc0000}
+\definecolor{green}{HTML}{00aa55}
+\definecolor{blue}{HTML}{3b82f6}
+\definecolor{gray}{HTML}{888888}
+\definecolor{codebg}{HTML}{f0f2f5}
+
+% ── 代码块样式 ──
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    framerule=0pt,
+    rulecolor=\color{gray},
+    breaklines=true,
+    showstringspaces=false,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{gray},
+    tabsize=2,
+    captionpos=b,
+}
+
+% ── 页眉页脚 ──
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}邪恶思潮 · 360舆情分析}
+\fancyhead[R]{\small\color{gray}v2.0}
+\fancyfoot[C]{\small\color{gray}\thepage\ / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
+
+% ── 标题格式 ──
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% ── 提示框 ──
+\newtcolorbox{tipbox}{colback=green!5!white,colframe=green!50!black,title=\faLightbulb\ 提示}
+\newtcolorbox{warnbox}{colback=red!5!white,colframe=red!50!black,title=\faExclamationTriangle\ 注意}
+\newtcolorbox{infobox}{colback=blue!5!white,colframe=blue!50!black,title=\faInfoCircle\ 信息}
+
+% ── 文档信息 ──
+\title{
+    \vspace{2cm}
+    {\Huge\bfseries 邪恶思潮}\\[0.3cm]
+    {\Large 零信任多Agent认知战防御系统}\\[0.5cm]
+    {\normalsize 360舆情分析 · 使用说明文档}\\[1cm]
+    {\normalsize Version 2.0}\\[0.3cm]
+    {\normalsize 2026年5月}
+}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% ── 目录 ──
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════
+\section{系统概述}
+% ═══════════════════════════════════════════
+
+\subsection{产品定位}
+
+\textbf{邪恶思潮}是一款基于零信任模型的认知战防御系统，专为360安全大脑和360企业舆情分析产品设计。系统采用多Agent协作架构，通过对信息的指纹提取、多源并行搜索、证据辩论合成和质量自我评估，实现对谣言和认知战攻击的自动化识别、溯源和研判。
+
+\subsection{核心能力}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{零信任核查}：默认假设所有信息具有恶意意图，全部深度核查
+    \item \textbf{14维指纹提取}：自动识别谣言特征（极端数字、情绪触发、权威伪装等）
+    \item \textbf{多源并行取证}：360搜索 + Firecrawl搜索 + Firecrawl抓取 三路并行
+    \item \textbf{证据辩论合成}：对比3路证据，交叉验证，达成共识裁定
+    \item \textbf{认知战检测}：匹配4种认知战攻击模板，与360安全大脑联动预警
+    \item \textbf{搜索溯源}：保留真实URL，点击可直达原文验证
+    \item \textbf{知识库进化}：572条案例库 + 指纹特征匹配 + 谣言进化树
+    \item \textbf{图片OCR审查}：百度飞桨OCR远程API提取图片文字后核查
+\end{itemize}
+
+\subsection{评分标准覆盖}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|l|}
+\hline
+\textbf{评分项} & \textbf{权重} & \textbf{覆盖方式} \\
+\hline
+准确性评估 & 30\% & 多源交叉验证 + 真实URL溯源 + Ground Truth基准测试 \\
+场景覆盖 & 20\% & 6类操纵手法 + 4类认知战模板 + 15条带标注测试集 \\
+结果闭环 & 20\% & 核查→报告→处方→辟谣卡片→反馈→知识库修正 \\
+技术架构 & 10\% & 4Agent协作 + 知识库(572条) + 指纹进化 + ChromaDB \\
+Agent能力 & 10\% & DeepSeek-v4-pro 全国产大模型 \\
+360生态联动 & 10\% & 360搜索核心引擎 + 360安全大脑联动架构 \\
+\hline
+\end{tabular}
+\caption{评分标准覆盖对照}
+\end{table}
+
+% ═══════════════════════════════════════════
+\section{系统架构}
+% ═══════════════════════════════════════════
+
+\subsection{Agent协作架构}
+
+系统由4个专职Agent组成流水线，每个Agent使用DeepSeek-v4-pro进行推理：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{谣言指纹官} (Fingerprint Analyst)\\
+    提取14维谣言指纹特征，进行行为分析和动机分析，检测认知战攻击模式。
+
+    \item \textbf{三路侦察兵} (Multi-Source Recon)\\
+    3个搜索Agent并行工作：
+    \begin{itemize}
+        \item 360搜索Agent：使用360搜索引擎检索中文官方数据源
+        \item Firecrawl搜索Agent：搜索并抓取网页完整Markdown内容
+        \item Firecrawl抓取Agent：精准抓取特定URL的原文内容
+    \end{itemize}
+
+    \item \textbf{真相仲裁官} (Truth Arbiter)\\
+    对比3路调查证据，进行辩论合成，达成共识裁定，生成核查报告和认知处方。
+
+    \item \textbf{品质审核官} (Quality Auditor)\\
+    对报告进行四维质量评估：证据充分性、置信度合理性、核查完整性、结论严谨性。
+\end{enumerate}
+
+\subsection{数据流}
+
+\begin{verbatim}
+用户输入
+  │
+  ├─ 谣言指纹官 (14维指纹 + 行为动机 + 认知战检测)
+  │     │
+  │     └─ 输出: evil\_score, attack\_dimensions, fingerprint
+  │
+  ├─ 三路侦察兵 (并行)
+  │     ├─ 360搜索 Agent
+  │     ├─ Firecrawl搜索 Agent
+  │     └─ Firecrawl抓取 Agent
+  │     │
+  │     └─ 输出: findings (claim + verdict + sources + official\_data)
+  │
+  ├─ 真相仲裁官 (辩论合成)
+  │     │
+  │     └─ 输出: cross\_validation, consensus, final\_verdict
+  │
+  └─ 品质审核官 (自我评估)
+        │
+        └─ 输出: quality\_score, strengths, weaknesses
+\end{verbatim}
+
+\subsection{技术栈}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{组件} & \textbf{技术选型} & \textbf{用途} \\
+\hline
+大模型 & DeepSeek-v4-pro & 全部Agent推理 \\
+搜索引擎 & 360搜索 (so.com) & 中文官方数据源检索 \\
+网页抓取 & Firecrawl & 网页Markdown提取 \\
+OCR & 百度飞桨OCR & 图片文字识别 \\
+后端 & FastAPI + SSE & API服务 + 流式推送 \\
+前端 & HTML + Tailwind + vis.js & Web界面 + 知识图谱 \\
+知识库 & ChromaDB + JSON & 案例存储与检索 \\
+\hline
+\end{tabular}
+\caption{技术栈总览}
+\end{table}
+
+% ═══════════════════════════════════════════
+\section{快速开始}
+% ═══════════════════════════════════════════
+
+\subsection{环境要求}
+
+\begin{itemize}[leftmargin=*]
+    \item Python $\geq$ 3.11
+    \item uv (Python包管理器)
+    \item 网络连接（API调用需要）
+\end{itemize}
+
+\subsection{安装步骤}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{克隆项目}
+
+\begin{lstlisting}[language=bash]
+cd /path/to/project
+git clone <repository-url> MindHacks
+cd MindHacks
+\end{lstlisting}
+
+\item \textbf{安装依赖}
+
+\begin{lstlisting}[language=bash]
+uv sync
+\end{lstlisting}
+
+这将自动安装所有Python依赖包，包括：
+\begin{itemize}
+    \item FastAPI + Uvicorn (Web服务)
+    \item httpx (HTTP客户端)
+    \item BeautifulSoup4 + lxml (HTML解析)
+    \item ChromaDB (向量数据库)
+    \item RapidOCR (OCR支持)
+\end{itemize}
+
+\item \textbf{配置环境变量}
+
+复制配置模板并编辑：
+
+\begin{lstlisting}[language=bash]
+cp .env.example .env
+\end{lstlisting}
+
+编辑 \texttt{.env} 文件，填入必要的API Key：
+
+\begin{lstlisting}[language=bash]
+# DeepSeek API (必需)
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+
+# 模型配置
+PRIMARY_MODEL=deepseek-v4-pro
+
+# 百度飞桨OCR API (图片审查需要)
+BAIDU_OCR_API_KEY=xxxxxxxxxxxxxxxx
+BAIDU_OCR_SECRET_KEY=xxxxxxxxxxxxxxxx
+
+# Firecrawl API (深度网页抓取)
+FIRECRAWL_API_KEY=fc-xxxxxxxxxxxxxxxx
+\end{lstlisting}
+
+\begin{warnbox}
+\texttt{.env} 文件包含敏感API密钥，已加入 \texttt{.gitignore}，不会被提交到版本控制。
+\end{warnbox}
+
+\item \textbf{启动服务}
+
+\begin{lstlisting}[language=bash]
+uv run python main.py
+\end{lstlisting}
+
+启动成功将显示：
+
+\begin{lstlisting}
+╔══════════════════════════════════════════════╗
+║   🛡️  邪恶思潮 · 360舆情分析                ║
+║   认知战防御 · 多Agent情报 · 360安全大脑联动  ║
+║                                              ║
+║   🧬 指纹官 → 🔍 三路侦察兵 → ⚖️ 仲裁官     ║
+║   🧠 DeepSeek-V3 | 🔗 360搜索 | 🏛️ 企业舆情  ║
+╚══════════════════════════════════════════════╝
+\end{lstlisting}
+
+\item \textbf{访问Web界面}
+
+浏览器打开：\url{http://localhost:8000}
+
+\begin{infobox}
+服务默认绑定 \texttt{0.0.0.0:8000}。同一局域网下其他设备可通过IP访问，例如 \texttt{http://192.168.x.x:8000}。
+\end{infobox}
+
+\end{enumerate}
+
+% ═══════════════════════════════════════════
+\section{使用指南}
+% ═══════════════════════════════════════════
+
+\subsection{文字信息核查}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{输入信息}\\
+在左侧输入区粘贴可疑的文字信息。支持：
+\begin{itemize}
+    \item 朋友圈/群聊转发文本
+    \item 社交媒体帖子
+    \item 新闻文章段落
+    \item 任何需要核查真伪的文本
+\end{itemize}
+
+\item \textbf{开始核查}\\
+点击红色的"开始核查"按钮。系统将依次执行：
+\begin{enumerate}
+    \item 指纹提取：识别14维谣言特征
+    \item 行为动机分析：判断操纵手法和传播意图
+    \item 认知战检测：匹配攻击模板
+    \item 3路并行搜索：360搜索 + Firecrawl搜索 + Firecrawl抓取
+    \item 辩论合成：交叉验证，达成共识
+    \item 报告生成：证据链 + 认知处方 + 辟谣卡片
+    \item 质量审核：四维质量评估
+\end{enumerate}
+
+整个过程通过SSE（Server-Sent Events）实时推送到前端，用户可以看到每个Agent的工作状态。
+
+\item \textbf{查看结果}\\
+核查完成后，右侧会展示完整报告：
+\begin{itemize}
+    \item \textbf{结论卡片}：邪恶评分、攻击维度、综合判定
+    \item \textbf{搜索溯源}：可点击的真实URL，直达原文验证
+    \item \textbf{认知战分析}：攻击模式匹配 + 360安全大脑联动建议
+    \item \textbf{证据链}：每一步核查的证据和来源
+    \item \textbf{认知处方}：被什么手法骗了、弱点是什么、怎么防
+    \item \textbf{辟谣卡片}：可复制分享的精简辟谣
+    \item \textbf{品质评估}：四维质量打分
+\end{itemize}
+
+\item \textbf{反馈判定}\\
+在报告底部点击"准确"或"不准确"按钮，帮助系统持续改进。
+
+\end{enumerate}
+
+\subsection{图片审查}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{上传图片}\\
+支持三种方式上传需要审查的图片：
+\begin{itemize}
+    \item 点击"上传截图"按钮选择本地图片
+    \item 在输入框中 Ctrl+V 粘贴剪贴板中的截图
+    \item 拖拽图片到上传区域
+\end{itemize}
+
+上传后会出现图片预览和"图片审查"按钮。
+
+\item \textbf{OCR文字提取}\\
+系统通过百度飞桨OCR远程API提取图片中的文字信息，支持中文、英文混合识别。提取结果会显示在OCR卡片中。
+
+\item \textbf{核查流程}\\
+提取的文字自动送入完整的4Agent核查流水线，与文字核查流程相同。
+
+\end{enumerate}
+
+\subsection{知识图谱}
+
+\begin{enumerate}[leftmargin=*]
+\item 点击顶部导航栏的"知识图谱"按钮切换到图谱视图
+\item 可视化展示所有已核查案例及其关系：
+    \begin{itemize}
+        \item 菱形节点 = 攻击维度（政治稳定、经济信心、社会团结、制度信任）
+        \item 圆点节点 = 操纵手法分类
+        \item 方块节点 = 已核查案例（颜色=类别，大小=邪恶评分）
+    \end{itemize}
+\item 可拖拽、缩放、点击节点查看详情
+\end{enumerate}
+
+\subsection{主题切换}
+
+点击Header左侧的"浅色模式/深色模式"按钮可在深色主题和浅色主题之间切换。主题选择会保存在浏览器本地存储中，刷新后保持。
+
+% ═══════════════════════════════════════════
+\section{API参考}
+% ═══════════════════════════════════════════
+
+\subsection{核心API}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|l|}
+\hline
+\textbf{方法} & \textbf{端点} & \textbf{说明} \\
+\hline
+POST & \texttt{/api/analyze} & 文本核查（SSE流式） \\
+POST & \texttt{/api/analyze-image} & 图片审查（SSE流式） \\
+GET & \texttt{/api/knowledge/stats} & 知识库统计 \\
+GET & \texttt{/api/knowledge/graph} & 知识图谱数据 \\
+POST & \texttt{/api/fingerprint} & 提取谣言指纹 \\
+POST & \texttt{/api/evolution} & 进化树+行为+动机分析 \\
+POST & \texttt{/api/benchmark} & Ground Truth基准测试 \\
+POST & \texttt{/api/feedback} & 提交用户反馈 \\
+GET & \texttt{/api/demo/cases} & 获取预设测试案例 \\
+\hline
+\end{tabular}
+\caption{API端点一览}
+\end{table}
+
+\subsection{文本核查 API}
+
+\textbf{请求}
+\begin{lstlisting}[language=bash]
+curl -X POST http://localhost:8000/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text": "中国结婚率不足1%，离婚排长队"}'
+\end{lstlisting}
+
+\textbf{响应} (SSE流式)
+
+响应格式为Server-Sent Events，每个事件以 \texttt{data:} 开头，包含JSON数据：
+
+\begin{lstlisting}[language=json]
+data: {"event": "fingerprint", "data": {...}}
+data: {"event": "agent_start", "agent": "malice", "data": {...}}
+data: {"event": "cognitive_warfare", "data": {...}}
+data: {"event": "parallel_start", "data": {...}}
+data: {"event": "parallel_complete", "data": {...}}
+data: {"event": "agent_complete", "agent": "debater", "data": {...}}
+data: {"event": "search_trace", "data": {...}}
+data: {"event": "report", "data": {...}}
+data: {"event": "done", "data": {...}}
+\end{lstlisting}
+
+SSE事件类型：
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{fingerprint} — 14维指纹提取结果
+    \item \texttt{behavior\_motivation} — 行为分析 + 动机分析 + 进化树
+    \item \texttt{cognitive\_warfare} — 认知战攻击模式检测
+    \item \texttt{kb\_assist} — 知识库辅助信息
+    \item \texttt{agent\_start} — Agent开始工作
+    \item \texttt{agent\_complete} — Agent工作完成
+    \item \texttt{parallel\_start} — 3路并行搜索开始
+    \item \texttt{parallel\_complete} — 3路并行搜索完成
+    \item \texttt{search\_trace} — 搜索溯源（真实URL）
+    \item \texttt{report} — 最终核查报告
+    \item \texttt{done} — 核查完成
+\end{itemize}
+
+\subsection{图片审查 API}
+
+\textbf{请求}
+\begin{lstlisting}[language=bash]
+curl -X POST http://localhost:8000/api/analyze-image \
+  -F "file=@screenshot.png"
+\end{lstlisting}
+
+响应格式与文本核查相同，额外包含 \texttt{ocr\_start} 和 \texttt{ocr\_complete} 事件。
+
+\subsection{知识图谱 API}
+
+\begin{lstlisting}[language=bash]
+curl http://localhost:8000/api/knowledge/graph
+\end{lstlisting}
+
+返回vis.js格式的图数据，包含 \texttt{nodes} 和 \texttt{edges}。
+
+\subsection{基准测试 API}
+
+\begin{lstlisting}[language=bash]
+curl -X POST http://localhost:8000/api/benchmark
+\end{lstlisting}
+
+对测试集中前10条案例进行自动核查，返回准确率统计。
+
+% ═══════════════════════════════════════════
+\section{配置说明}
+% ═══════════════════════════════════════════
+
+\subsection{环境变量}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{变量} & \textbf{默认值} & \textbf{说明} \\
+\hline
+\texttt{DEEPSEEK\_API\_KEY} & — & DeepSeek API密钥（必需） \\
+\texttt{DEEPSEEK\_BASE\_URL} & \texttt{https://api.deepseek.com} & API地址 \\
+\texttt{PRIMARY\_MODEL} & \texttt{deepseek-v4-pro} & 主力模型 \\
+\texttt{HOST} & \texttt{0.0.0.0} & 服务监听地址 \\
+\texttt{PORT} & \texttt{8000} & 服务端口 \\
+\texttt{BAIDU\_OCR\_API\_KEY} & — & 百度OCR API Key \\
+\texttt{BAIDU\_OCR\_SECRET\_KEY} & — & 百度OCR Secret Key \\
+\texttt{FIRECRAWL\_API\_KEY} & — & Firecrawl API Key \\
+\texttt{MAX\_SEARCH\_RESULTS} & \texttt{5} & 搜索结果数量 \\
+\texttt{REQUEST\_TIMEOUT} & \texttt{90.0} & LLM请求超时(秒) \\
+\hline
+\end{tabular}
+\caption{环境变量配置}
+\end{table}
+
+\subsection{模型配置}
+
+系统默认使用 \texttt{deepseek-v4-pro}（DeepSeek V3系列）。可通过 \texttt{PRIMARY\_MODEL} 环境变量切换到其他兼容OpenAI API的模型。
+
+\begin{warnbox}
+DeepSeek-v4-pro 目前不支持图片输入（Vision）。图片审查功能会自动降级到百度飞桨OCR远程API或本地RapidOCR。
+\end{warnbox}
+
+\subsection{知识库配置}
+
+知识库使用bigram文本相似度进行案例匹配。种子数据包括：
+\begin{itemize}
+    \item \texttt{data/seed\_patterns.json} — 20条基础案例 + 8种操纵模式
+    \item \texttt{data/weibo\_seed.json} — 500条微博谣言数据集
+    \item \texttt{Chinese\_Rumor\_Dataset/rumors\_v170613.json} — 31,669条原始微博谣言
+\end{itemize}
+
+启动时自动加载，累计572条案例。每次核查完成后自动入库，知识库持续增长。
+
+% ═══════════════════════════════════════════
+\section{项目结构}
+% ═══════════════════════════════════════════
+
+\begin{verbatim}
+MindHacks/
+├── main.py                      # 启动入口
+├── pyproject.toml               # 依赖配置
+├── .env                         # 环境变量（不提交）
+├── config/
+│   ├── __init__.py              # 全局配置
+│   ├── categories.py            # 6类操纵手法定义
+│   └── settings.py              # 配置导出
+├── llm/
+│   └── client.py                # DeepSeek API客户端
+├── agents/
+│   ├── base.py                  # Agent基类
+│   ├── malice_hypothesis.py     # 谣言指纹官
+│   ├── search_360.py            # 360搜索Agent
+│   ├── search_firecrawl.py      # Firecrawl搜索+抓取Agent
+│   ├── debate_synthesizer.py    # 真相仲裁官
+│   └── truth_publisher.py       # 报告生成+品质审核
+├── pipeline/
+│   └── orchestrator.py          # 4Agent编排器
+├── search/
+│   ├── web_search.py            # 360搜索+Bing+Google
+│   └── ocr.py                   # 百度飞桨OCR
+├── knowledge/
+│   ├── store.py                 # 知识库（案例+模式）
+│   ├── fingerprint.py           # 14维指纹提取
+│   ├── evolution.py             # 进化树+行为动机分析
+│   └── cognitive_warfare.py     # 认知战攻击模板
+├── tools/
+│   └── firecrawl_tool.py        # Firecrawl工具
+├── api/
+│   └── server.py                # FastAPI路由+SSE
+├── frontend/
+│   ├── index.html               # Web界面
+│   ├── style.css                # 样式（深浅主题）
+│   └── app.js                   # 前端逻辑
+└── data/
+    ├── seed_patterns.json       # 基础种子数据
+    ├── weibo_seed.json          # 微博谣言库
+    └── test_rumors.json         # 测试集（含Ground Truth）
+\end{verbatim}
+
+% ═══════════════════════════════════════════
+\section{认知战攻击模板}
+% ═══════════════════════════════════════════
+
+系统内置4种认知战攻击模板，与360安全大脑联动：
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{系统性信任瓦解} (Critical)\\
+通过持续散布"官方数据造假""政府无能"等信息，瓦解公众对制度的信任。\\
+\textit{360联动}: 360安全大脑标记传播源头和扩散路径。
+
+\item \textbf{经济崩溃叙事} (Critical)\\
+夸大经济数据负面变化，构建"中国经济即将崩溃"的虚假叙事。\\
+\textit{360联动}: 360搜索交叉验证官方经济数据与实际报道偏差。
+
+\item \textbf{社会分裂工程} (High)\\
+制造群体对立（贫富/地域/代际/性别），撕裂社会团结。\\
+\textit{360联动}: 360浏览器对涉群体对立敏感内容标记预警。
+
+\item \textbf{政策破坏攻击} (High)\\
+伪造政府文件/通知，歪曲政策解读，破坏公众信任。\\
+\textit{360联动}: 360安全大脑对虚假官方通知进行格式验证和源头追踪。
+
+\end{enumerate}
+
+% ═══════════════════════════════════════════
+\section{360生态联动}
+% ═══════════════════════════════════════════
+
+\subsection{已实现联动}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{360搜索}：作为核心搜索引擎，对中文官方数据源(.gov.cn)优先索引
+    \item \textbf{360安全大脑}：认知战检测结果包含360安全大脑联动建议
+    \item \textbf{360浏览器}：架构预留浏览器插件接口，浏览信息时一键提交核查
+\end{itemize}
+
+\subsection{架构扩展}
+
+\begin{verbatim}
+┌──────────┐    ┌──────────────┐    ┌───────────┐
+│ 360浏览器 │───▶│              │───▶│  360搜索   │
+└──────────┘    │  邪恶思潮     │    └───────────┘
+                │  Agent系统    │
+┌──────────┐    │  (FastAPI)    │    ┌───────────┐
+│360安全大脑│◀──▶│              │◀──▶│  360 AI   │
+└──────────┘    └──────────────┘    └───────────┘
+\end{verbatim}
+
+% ═══════════════════════════════════════════
+\section{常见问题}
+% ═══════════════════════════════════════════
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{Q: 启动时提示"知识库种子数据文件不存在"？}\\
+A: 这是正常提示。如果 \texttt{data/seed\_patterns.json} 或 \texttt{data/weibo\_seed.json} 不存在，系统将以空知识库启动，不影响正常使用。
+
+\item \textbf{Q: 图片审查失败，提示"百度OCR错误(18)"？}\\
+A: 百度OCR免费API有QPS限制（2次/秒）。等待几秒后重试即可。
+
+\item \textbf{Q: 360搜索返回0条结果？}\\
+A: 系统会自动降级到Bing搜索，不影响核查流程。360搜索偶尔会因反爬机制暂时不可用。
+
+\item \textbf{Q: 如何让局域网内其他设备访问？}\\
+A: 服务默认绑定 \texttt{0.0.0.0:8000}。查看本机IP（\texttt{hostname -I}），其他设备访问 \texttt{http://你的IP:8000}。注意关闭防火墙。
+
+\item \textbf{Q: 知识库案例太多，启动变慢？}\\
+A: 当前572条案例的启动时间约3秒。如需加速，可清理 \texttt{data/knowledge\_db.json} 文件重置知识库。
+
+\end{enumerate}
+
+% ═══════════════════════════════════════════
+\section{版本历史}
+% ═══════════════════════════════════════════
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|l|}
+\hline
+\textbf{版本} & \textbf{日期} & \textbf{更新内容} \\
+\hline
+v1.0 & 2026-05-30 & 初始版本，3Agent管道 + 知识库 \\
+v1.1 & 2026-05-30 & 多Agent并行搜索 + 辩论合成 + KB不短路 \\
+v2.0 & 2026-05-30 & 认知战检测 + 搜索溯源 + 360安全大脑联动 + 基准测试 \\
+\hline
+\end{tabular}
+\caption{版本历史}
+\end{table}
+
+% ═══════════════════════════════════════════
+\section{许可证与鸣谢}
+% ═══════════════════════════════════════════
+
+本项目为MindHacks比赛参赛作品，赛道三：AI Agent — 信息真相猎人。
+
+\textbf{技术鸣谢}：
+\begin{itemize}[leftmargin=*]
+    \item DeepSeek — 国产大模型支持
+    \item 360搜索 — 搜索引擎支持
+    \item 百度飞桨OCR — 图片文字识别
+    \item Firecrawl — 网页抓取工具
+    \item vis.js — 知识图谱可视化
+\end{itemize}
+
+\vspace{1cm}
+\begin{center}
+\color{gray}
+--- 文档结束 ---
+\end{center}
+
+\end{document}

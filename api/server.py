@@ -11,24 +11,22 @@ from pathlib import Path
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse
 
-from pipeline.orchestrator import PipelineOrchestrator
+from pipeline.orchestrator import TruthHunterPipeline
 
-logger = logging.getLogger(__name__)
+app = FastAPI(title="邪恶思潮 · 360舆情分析", version="2.0.0")
 
-app = FastAPI(title="邪恶思潮", version="1.0.0")
-
-FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "web"
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
-_pipeline: PipelineOrchestrator | None = None
+_pipeline: TruthHunterPipeline | None = None
 
 
-def set_pipeline(pipeline: PipelineOrchestrator):
+def set_pipeline(pipeline: TruthHunterPipeline):
     global _pipeline
     _pipeline = pipeline
 
 
-def get_pipeline() -> PipelineOrchestrator:
+def get_pipeline() -> TruthHunterPipeline:
     assert _pipeline is not None, "管道未初始化"
     return _pipeline
 
@@ -39,7 +37,20 @@ def get_pipeline() -> PipelineOrchestrator:
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
-    return (FRONTEND_DIR / "index.html").read_text(encoding="utf-8")
+    """产品宣传首页"""
+    return (FRONTEND_DIR / "landing.html").read_text(encoding="utf-8")
+
+
+@app.get("/guide", response_class=HTMLResponse)
+async def guide_page():
+    """产品使用说明"""
+    return (FRONTEND_DIR / "guide.html").read_text(encoding="utf-8")
+
+
+@app.get("/app", response_class=HTMLResponse)
+async def app_page():
+    """审查研判工具页"""
+    return (FRONTEND_DIR / "app.html").read_text(encoding="utf-8")
 
 
 @app.get("/style.css")
@@ -247,6 +258,53 @@ async def get_evolution(request: Request):
         "behavior": behavior,
         "motivation": motivation,
         "fingerprint_summary": fp,
+    }
+
+
+@app.post("/api/benchmark")
+async def run_benchmark():
+    """基准测试 — 对测试集进行快速评估，返回准确率"""
+    import json
+    from pathlib import Path
+
+    test_file = DATA_DIR / "test_rumors.json"
+    if not test_file.exists():
+        return {"error": "测试数据文件不存在"}
+
+    with open(test_file, "r", encoding="utf-8") as f:
+        test_data = json.load(f)
+
+    pipeline = get_pipeline()
+    results = []
+    correct = 0
+    total = 0
+
+    for rumor in test_data.get("rumors", [])[:10]:  # 跑前10条
+        try:
+            report = await pipeline.analyze(rumor["text"])
+            verdict = report.get("overall_verdict", "")
+            is_fake = "false" in verdict or "manipulative" in verdict
+            is_correct = (rumor["ground_truth"] == "虚假" and is_fake) or (rumor["ground_truth"] != "虚假" and not is_fake)
+            if is_correct:
+                correct += 1
+            total += 1
+            results.append({
+                "id": rumor["id"],
+                "text": rumor["text"][:60],
+                "ground_truth": rumor["ground_truth"],
+                "predicted": "虚假" if is_fake else "真实/存疑",
+                "correct": is_correct,
+                "confidence": report.get("confidence", 0),
+                "category": rumor["category"],
+            })
+        except Exception as e:
+            results.append({"id": rumor["id"], "text": rumor["text"][:60], "error": str(e)[:100]})
+
+    return {
+        "accuracy": round(correct / total * 100, 1) if total > 0 else 0,
+        "correct": correct,
+        "total": total,
+        "results": results,
     }
 
 

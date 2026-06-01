@@ -1,5 +1,5 @@
 """管道模块"""
 
-from pipeline.orchestrator import PipelineOrchestrator
+from pipeline.orchestrator import TruthHunterPipeline
 
-__all__ = ["PipelineOrchestrator"]
+__all__ = ["TruthHunterPipeline"]

@@ -37,8 +37,8 @@ def init():
     from config import settings
     from llm.client import LLMClient
     from knowledge.store import KnowledgeStore
-    from pipeline.orchestrator import PipelineOrchestrator
-    from output.report import ReportGenerator
+    from pipeline.orchestrator import TruthHunterPipeline
+    from reports.report import ReportGenerator
     from api.server import app, set_pipeline
 
     logger.info("🔧 正在初始化邪恶思潮...")
@@ -66,7 +66,7 @@ def init():
     logger.info(f"  ✓ 知识库总计: {total} 条案例, {len(kb._patterns)} 条模式")
 
     # 管道
-    pipeline = PipelineOrchestrator(llm, kb, ReportGenerator())
+    pipeline = TruthHunterPipeline(llm, kb, ReportGenerator())
     set_pipeline(pipeline)
     logger.info("  ✓ 3Agent 管道就绪 (恶意假设官 → 核查记者 → 真相发布官)")
 
@@ -77,10 +77,10 @@ def main():
     """启动服务"""
     print("""
 ╔══════════════════════════════════════════════╗
-║   🛡️  邪恶思潮 — 恶意假设驱动的核查Agent     ║
+║   🛡️  邪恶思潮 · 360舆情分析             ║
 ║                                              ║
-║   👁️  恶意假设官 → 🔍 核查记者 → 📋 发布官    ║
-║   🧠 DeepSeek-V3  |  🔗 360搜索             ║
+║   🧬 谣言指纹官 → 🔍 三路侦察兵 → ⚖️ 仲裁官   ║
+║   🧠 DeepSeek-V3 | 🔗 360安全大脑 | 🏛️ 企业舆情  ║
 ╚══════════════════════════════════════════════╝
 """)
     check_env()
