@@ -13,10 +13,7 @@ dependencies = [
     "chromadb>=0.4.24",
     "beautifulsoup4>=4.14.3",
     "lxml>=6.1.1",
-    "easyocr>=1.7.2",
     "python-multipart>=0.0.29",
-    "paddleocr>=3.6.0",
-    "rapidocr-onnxruntime>=1.4.4",
     "openosint>=2.18.0",
     "openai>=2.38.0",
 ]
