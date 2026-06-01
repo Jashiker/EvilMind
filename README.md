@@ -8,7 +8,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![DeepSeek](https://img.shields.io/badge/LLM-DeepSeek--v4-536DFE)](https://deepseek.com)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](https://docs.docker.com)
-[![License](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
+[![License](https://img.shields.io/badge/License-GPLv3-blue)](./LICENSE)
 
 </div>
 
@@ -253,6 +253,103 @@ EvilMind/
 | **容器化** | Docker + docker-compose |
 | **包管理** | uv (PyPI 清华镜像) |
 
+---
+
+## 性能指标
+
+### 管道耗时
+
+| 阶段 | API 调用 | 并行模式 | 典型耗时 |
+|------|---------|---------|---------|
+| 阶段 1：指纹研判 | 5 次（4 并行 + 1 串行） | 4 Agent 并行 → 综合 | 15-30s |
+| 阶段 2：三路侦察 | 3+ 次（含工具调用轮次） | 3 Agent 并行各自搜索 | 20-40s |
+| 阶段 3：合议庭仲裁 | 4 次（3 并行 + 1 串行） | 3 仲裁官并行 → 首席 | 10-20s |
+| 阶段 4：品质审核 | 2 次（1 报告 + 1 自评） | 串行 | 15-25s |
+| **总计** | **~15 次** | | **60-120s** |
+
+### 知识库性能
+
+| 指标 | 数值 |
+|------|------|
+| 案例库规模 | 500+ 条已核查案例 |
+| 匹配算法 | Bigram 字符级相似度 |
+| 匹配阈值 | 0.3（相似度 ≥0.6 注入上下文，≥0.9 给出参考但不短路） |
+| 指纹维度 | 14 维（极端数字/紧急呼吁/情绪触发/权威伪装等） |
+
+### Docker 镜像
+
+| 指标 | 数值 |
+|------|------|
+| 基础镜像 | Ubuntu 24.04 LTS |
+| 镜像体积 | ~2.6 GB（含 Python + Node.js + Claude CLI） |
+| Python 包 | 103 个（纯 HTTP 调用，无本地 ML 模型） |
+| 内存占用 | ~800MB（ChromaDB + uvicorn workers） |
+
+---
+
+## FAQ
+
+<details>
+<summary><b>Q: 一次完整核查需要多长时间？</b></summary>
+
+约 **60-120 秒**。指纹团队 5 次 API 调用（4 并行 + 1 串行）、侦察兵 3 次（并行，含多轮工具调用）、合议庭 4 次（3 并行 + 1 串行）、审核 2 次（串行）。实际耗时取决于搜索轮数和网络延迟。
+</details>
+
+<details>
+<summary><b>Q: 搜索结果为什么可能查不到内容？</b></summary>
+
+- 360 搜索引擎对最新发布的内容有索引延迟
+- 社交媒体平台（微博/小红书）的封闭性限制内容被抓取
+- 系统通过 Claude Code CLI 搜索作为补充渠道
+- 在搜索结果页可查看所有实际访问过的 URL
+</details>
+
+<details>
+<summary><b>Q: LLM 会不会编造搜索关键词？</b></summary>
+
+不会。指纹研判官提炼关键词后，经 `_enforce_year_tags()` 自动注入年份标签，写入各侦察兵的 user prompt。v2.0.1 已修复 `chat_with_tools` 中 user prompt 未正确加入 messages 的 Bug，确保 LLM 使用正确的搜索关键词。
+</details>
+
+<details>
+<summary><b>Q: 知识库匹配到案例后会短路管道吗？</b></summary>
+
+**不会**。即使 KB 相似度 ≥0.9，信息仍走完整 4 阶段管道。知识库作为辅助上下文（kb_context/kb_hint）注入各 Agent prompt，不替代实际搜索验证。这确保每一条信息都经过实时搜索验证。
+</details>
+
+<details>
+<summary><b>Q: 图片审查需要什么配置？</b></summary>
+
+需要百度飞桨 OCR 的 API Key 和 Secret Key（在 `.env` 中配置 `BAIDU_OCR_API_KEY` 和 `BAIDU_OCR_SECRET_KEY`）。纯文字核查不需要。OCR 采用 HTTP API 调用，不依赖本地模型。
+</details>
+
+<details>
+<summary><b>Q: Docker 中 Claude Code CLI 如何工作？</b></summary>
+
+镜像内置 `@anthropic-ai/claude-code` npm 包，通过环境变量 `ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic` 路由到 DeepSeek 的 Anthropic 兼容端点，复用 `DEEPSEEK_API_KEY`。无需独立 Anthropic 账号。
+</details>
+
+<details>
+<summary><b>Q: 支持私有化部署吗？</b></summary>
+
+支持。Docker 镜像可在政务内网/企业专网中运行，仅需 DeepSeek API 连通性。所有数据（知识库、报告、搜索缓存）存储在容器挂载卷中，数据不出域。
+</details>
+
+<details>
+<summary><b>Q: 报告可以在哪些地方查看？</b></summary>
+
+- 前端 `/app` 页面：完整可视化报告（判定卡片 + 证据网络图 + 认知处方 + 辟谣卡片）
+- `reports/` 目录：JSON 格式完整报告（含所有中间分析结果）
+- 知识图谱 `/app` → 点击"知识图谱"可查看所有历史核查案例
+</details>
+
+<details>
+<summary><b>Q: 如何验证核查结果的准确性？</b></summary>
+
+每条证据附带真实搜索 URL，可直接点击打开原文验证。前端证据网络图双击来源节点可直接跳转。系统内置 15 条标注了 ground_truth 的测试集，可通过 `/api/benchmark` 运行基准测试评估准确率。
+</details>
+
+---
+
 ## License
 
-MIT
+[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html)
